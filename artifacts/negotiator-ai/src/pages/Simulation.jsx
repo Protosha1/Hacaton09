@@ -1,0 +1,11 @@
+// Экран симуляции (разговор с ИИ-заглушкой)
+function Session() {
+  const [, navigate] = useLocation();
+  const [seconds, setSeconds] = useState(0);
+  const [listening, setListening] = useState(true);
+  const [confirm, setConfirm] = useState(false);
+  useEffect(() => { const timer = window.setInterval(() => setSeconds(value => value + 1), 1000); return () => window.clearInterval(timer); }, []);
+  useEffect(() => { const timer = window.setInterval(() => setListening(value => !value), 4800); return () => window.clearInterval(timer); }, []);
+  const end = () => navigate('/analytics?verdict=Успех');
+  return <div className="session-page"><div className="session-wrap"><span className="eyebrow">Голосовая арена · Обсуждение повышения</span><h1 className="display">{listening ? 'Я вас слушаю.' : 'Собеседник отвечает.'}</h1><p className="muted">{listening ? 'Сформулируйте одну мысль и сделайте паузу.' : 'Отслеживайте, что меняется в позиции собеседника.'}</p><div className="session-ring"><div><div className="status-dot" style={{ margin: '0 auto 12px' }} />{listening ? <Mic size={31} /> : <Headphones size={31} />}</div></div><div className="timer">{String(Math.floor(seconds / 60)).padStart(2, '0')}:{String(seconds % 60).padStart(2, '0')}</div><button className="btn btn-primary" style={{ marginTop: 31 }} onClick={() => setConfirm(true)} data-testid="button-end-session">Завершить разговор <X size={15} /></button><p className="muted" style={{ fontSize: 11, marginTop: 17 }}>Не нужно быть идеальным. Просто продолжайте.</p></div>{confirm && <div style={{ position: 'fixed', inset: 0, zIndex: 30, display: 'grid', placeItems: 'center', background: 'rgba(8,5,22,.72)', padding: 20 }}><div className="card" style={{ width: 'min(420px,100%)', padding: 27 }}><span className="eyebrow">Пауза</span><h2 className="display" style={{ fontSize: 29, margin: '13px 0' }}>Завершить разговор?</h2><p className="muted" style={{ fontSize: 13, lineHeight: 1.6 }}>Мы сохраним эту попытку и покажем разбор сильных и слабых мест.</p><div style={{ display: 'flex', gap: 9, marginTop: 24 }}><button className="btn btn-quiet" onClick={() => setConfirm(false)} style={{ flex: 1 }}>Продолжить</button><button className="btn btn-primary" onClick={end} style={{ flex: 1 }} data-testid="button-confirm-end">Завершить</button></div></div></div>}</div>;
+}
