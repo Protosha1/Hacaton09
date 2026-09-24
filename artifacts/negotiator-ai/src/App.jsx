@@ -1,19 +1,109 @@
-//Главный пульт управления: здесь настраивается роутинг(переключение страниц)
+// Главный пульт управления: здесь настраивается роутинг (переключение страниц).
+import { useState } from 'react';
+import { Router as WouterRouter, Switch, Route, useLocation } from 'wouter';
+
+import { useAuth } from '@/context/AuthContext';
+import { ErrorBoundary } from '@/components/error-boundary';
+import { PublicShell, PrivateShell } from '@/components/Shell';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import AdminRoute from '@/components/AdminRoute';
+import Toast from '@/components/Toast';
+
+import Landing from '@/pages/Landing';
+import Catalog from '@/pages/Catalog';
+import Onboarding from '@/pages/Onboarding';
+import Profile from '@/pages/Profile';
+import ConstructorPage from '@/pages/Constructor';
+import Briefing from '@/pages/Briefing';
+import Session from '@/pages/Simulation';
+import Analytics from '@/pages/Analytics';
+import AuthPage from '@/pages/auth/Login';
+import AdminCases from '@/pages/admin/MyCases';
+import AdminCaseNew from '@/pages/admin/CaseConstructor';
+import NotFound from '@/pages/not-found';
+
 function AppContent() {
-  const [user, setUser] = useState(() => readStore('negotiator-user', null));
+  const { user, logout } = useAuth();
   const [toast, setToast] = useState('');
-  const setPersistedUser = (value) => { setUser(value); saveStore('negotiator-user', value); };
-  const logout = () => { setUser(null); localStorage.removeItem('negotiator-user'); };
   const onToast = (text) => setToast(text);
-  const privateRoute = (node, role = 'user') => user && user.role === role ? <PrivateShell user={user} onLogout={logout}>{node}</PrivateShell> : <PublicShell user={user} onLogout={logout}><AuthPage mode="login" admin={role === 'admin'} onAuth={setPersistedUser} /></PublicShell>;
-  return <><Switch><Route path="/login"><PublicShell user={user} onLogout={logout}><AuthPage mode="login" onAuth={setPersistedUser} /></PublicShell></Route><Route path="/register"><PublicShell user={user} onLogout={logout}><AuthPage mode="register" onAuth={setPersistedUser} /></PublicShell></Route><Route path="/login/admin"><PublicShell user={user} onLogout={logout}><AuthPage mode="login" admin onAuth={setPersistedUser} /></PublicShell></Route><Route path="/register/admin"><PublicShell user={user} onLogout={logout}><AuthPage mode="register" admin onAuth={setPersistedUser} /></PublicShell></Route><Route path="/onboarding">{user ? <PublicShell user={user} onLogout={logout}><Onboarding onComplete={setPersistedUser} /></PublicShell> : <PublicShell user={user} onLogout={logout}><AuthPage mode="register" onAuth={setPersistedUser} /></PublicShell>}</Route><Route path="/catalog"><PublicShell user={user} onLogout={logout}><div className="page container-wide"><Catalog user={user} onToast={onToast} /></div></PublicShell></Route><Route path="/"><PublicShell user={user} onLogout={logout}><Landing user={user} /></PublicShell></Route><Route path="/profile">{privateRoute(<Profile user={user} onToast={onToast} />)}</Route><Route path="/constructor">{privateRoute(<ConstructorPage />)}</Route><Route path="/briefing">{privateRoute(<Briefing />)}</Route><Route path="/session">{privateRoute(<Session />)}</Route><Route path="/analytics">{privateRoute(<Analytics user={user} onUser={setPersistedUser} onToast={onToast} />)}</Route><Route path="/admin/cases">{privateRoute(<AdminCases onToast={onToast} />, 'admin')}</Route><Route path="/admin/cases/new">{privateRoute(<AdminCaseNew onToast={onToast} />, 'admin')}</Route><Route component={NotFound} /></Switch>{toast && <Toast message={toast} onClose={() => setToast('')} />}</>;
+
+  return (
+    <>
+      <Switch>
+        <Route path="/login">
+          <PublicShell user={user} onLogout={logout}><AuthPage mode="login" /></PublicShell>
+        </Route>
+        <Route path="/register">
+          <PublicShell user={user} onLogout={logout}><AuthPage mode="register" /></PublicShell>
+        </Route>
+        <Route path="/login/admin">
+          <PublicShell user={user} onLogout={logout}><AuthPage mode="login" admin /></PublicShell>
+        </Route>
+        <Route path="/register/admin">
+          <PublicShell user={user} onLogout={logout}><AuthPage mode="register" admin /></PublicShell>
+        </Route>
+        <Route path="/onboarding">
+          <PublicShell user={user} onLogout={logout}><Onboarding /></PublicShell>
+        </Route>
+        <Route path="/catalog">
+          <PublicShell user={user} onLogout={logout}>
+            <div className="page container-wide"><Catalog user={user} onToast={onToast} /></div>
+          </PublicShell>
+        </Route>
+        <Route path="/">
+          <PublicShell user={user} onLogout={logout}><Landing user={user} /></PublicShell>
+        </Route>
+        <Route path="/profile">
+          <ProtectedRoute>
+            <PrivateShell user={user} onLogout={logout}><Profile user={user} onToast={onToast} /></PrivateShell>
+          </ProtectedRoute>
+        </Route>
+        <Route path="/constructor">
+          <ProtectedRoute>
+            <PrivateShell user={user} onLogout={logout}><ConstructorPage /></PrivateShell>
+          </ProtectedRoute>
+        </Route>
+        <Route path="/briefing">
+          <ProtectedRoute>
+            <PrivateShell user={user} onLogout={logout}><Briefing /></PrivateShell>
+          </ProtectedRoute>
+        </Route>
+        <Route path="/session">
+          <ProtectedRoute>
+            <PrivateShell user={user} onLogout={logout}><Session /></PrivateShell>
+          </ProtectedRoute>
+        </Route>
+        <Route path="/analytics">
+          <ProtectedRoute>
+            <PrivateShell user={user} onLogout={logout}><Analytics onToast={onToast} /></PrivateShell>
+          </ProtectedRoute>
+        </Route>
+        <Route path="/admin/cases">
+          <AdminRoute>
+            <PrivateShell user={user} onLogout={logout}><AdminCases onToast={onToast} /></PrivateShell>
+          </AdminRoute>
+        </Route>
+        <Route path="/admin/cases/new">
+          <AdminRoute>
+            <PrivateShell user={user} onLogout={logout}><AdminCaseNew onToast={onToast} /></PrivateShell>
+          </AdminRoute>
+        </Route>
+        <Route component={NotFound} />
+      </Switch>
+      {toast && <Toast message={toast} onClose={() => setToast('')} />}
+    </>
+  );
 }
- 
-function Router() {
+
+function AppRouter() {
   const [location] = useLocation();
   return <ErrorBoundary resetKey={location}><AppContent /></ErrorBoundary>;
 }
- 
-function App() {
-  return <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}><Router /></WouterRouter>;
+
+export default function App() {
+  return (
+    <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+      <AppRouter />
+    </WouterRouter>
+  );
 }

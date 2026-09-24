@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
 import { Menu, Sparkles, UserRound } from 'lucide-react';
- 
+
 function Logo() {
   return (
     <Link href="/" className="brand" data-testid="link-logo">
@@ -10,9 +10,11 @@ function Logo() {
     </Link>
   );
 }
- 
+
 export default function Header({ user, onLogout }) {
   const [menu, setMenu] = useState(false);
+  const firstName = user?.name?.split(' ')[0] || user?.email?.split('@')[0] || 'Профиль';
+
   return (
     <header className="topbar">
       <div className="container-wide topbar-inner">
@@ -30,7 +32,7 @@ export default function Header({ user, onLogout }) {
           {user ? (
             <>
               <Link href={user.role === 'admin' ? '/admin/cases' : '/profile'} className="btn btn-quiet btn-small" data-testid="link-account">
-                <UserRound size={15} /> {user.name.split(' ')[0]}
+                <UserRound size={15} /> {firstName}
               </Link>
               <button onClick={onLogout} className="btn btn-small" data-testid="button-logout">Выйти</button>
             </>
@@ -42,13 +44,12 @@ export default function Header({ user, onLogout }) {
           )}
         </div>
         {menu && (
-          <div className="card" style={{ position: 'absolute', right: 14, top: 58, padding: 12, display: 'grid', gap: 8 }}>
-            <Link href="/catalog" className="btn btn-quiet btn-small">Тренировки</Link>
-            <a href="/#method" className="btn btn-quiet btn-small">Как это работает</a>
+          <div className="card" style={{ position: 'absolute', right: 14, top: 58, padding: 12, display: 'grid', gap: 8, zIndex: 20 }}>
+            <Link href="/catalog" className="btn btn-quiet btn-small" onClick={() => setMenu(false)}>Тренировки</Link>
+            <a href="/#method" className="btn btn-quiet btn-small" onClick={() => setMenu(false)}>Как это работает</a>
           </div>
         )}
       </div>
     </header>
   );
 }
-
