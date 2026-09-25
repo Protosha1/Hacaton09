@@ -61,12 +61,6 @@ input, select, textarea, button { font-family: inherit; font-size: 14px; color: 
   color: var(--mint);
 }
 
-.display {
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.08;
-  margin: 0;
-}
 h1.display { font-size: clamp(30px, 4vw, 48px); }
 
 .page { padding: 40px 0 70px; }
@@ -141,11 +135,10 @@ h1.display { font-size: clamp(30px, 4vw, 48px); }
   color: #1a1030;
 }
 .brand-mark-img {
-  width: 30px;
-  height: 30px;
+  width: 60px;
+  height: 60px;
   object-fit: contain;
-  /* исходный логотип тёмно-серый — на тёмной шапке делаем его белым */
-  filter: brightness(0) invert(1);
+
 }
 .footer-logo {
   width: 20px;
@@ -183,10 +176,14 @@ h1.display { font-size: clamp(30px, 4vw, 48px); }
 .hero-slogan {
   margin: 10px 0 0;
   font-weight: 800;
-  font-size: clamp(22px, 2.6vw, 32px);
+  font-size: clamp(32px, 4vw, 52px);
   letter-spacing: -0.01em;
   line-height: 1.08;
   color: var(--lavender);
+}
+.hero-slogan span {
+  color: #ffffff;
+  font-weight: 600
 }
 .hero-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 50px; align-items: center; }
 .hero-copy { color: var(--soft); font-size: 16px; line-height: 1.65; margin: 18px 0 26px; max-width: 480px; }

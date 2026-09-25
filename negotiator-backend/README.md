@@ -38,25 +38,10 @@ AI-тренажёр деловых переговоров.
 3. Скопировать .env:
    copy .env.example .env
 
-4. ОБЯЗАТЕЛЬНО заполнить в .env три поля:
-
-   SECRET_KEY        минимум 32 символа. Сгенерировать:
-                     python -c "import secrets; print(secrets.token_urlsafe(32))"
-
-   DASHSCOPE_API_KEY ваш ключ Qwen с
-                     https://dashscope.console.aliyun.com/
-
-   ADMIN_PASSWORD    минимум 12 символов. Используется seed_admin.py.
-
-   Без этих полей приложение не стартует или seed_admin.py упадёт.
 
 5. Миграции:
    alembic upgrade head
 
-6. Демо-данные:
-   python seed.py                 # 3 встроенных сценария
-   python seed_cases.py           # 90 кейсов по 6 категориям
-   python seed_admin.py           # админ из .env
 
 7. Запуск:
    uvicorn app.main:app --host 127.0.0.1 --port 8000
@@ -73,6 +58,11 @@ AI-тренажёр деловых переговоров.
   Все .py файлы должны быть в UTF-8 без BOM.
   В VS Code: File -> Save with Encoding -> UTF-8
   Настройка на будущее: "files.encoding": "utf8"
+
+ Демо-данные:
+   python seed.py                 # 3 встроенных сценария
+   python seed_cases.py           # 90 кейсов по 6 категориям
+   python seed_admin.py           # админ из .env
 
 
 ============================================================

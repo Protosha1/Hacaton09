@@ -4,7 +4,7 @@ import { useLocation } from 'wouter';
 import { ArrowRight, ChevronDown, ShieldCheck, X } from 'lucide-react';
 import { categories, categoryLabel } from '@/data/categories';
 import { scenariosApi } from '@/lib/api';
-import logo from '@/assets/logo.png';
+import logo from '../assets/logo.png';
 
 const faqItems = [
   {
@@ -44,8 +44,9 @@ export default function Landing({ user }) {
         <div className="hero-grid">
           <div>
             <span className="eyebrow">Тренажёр сложных разговоров</span>
-            <p className="hero-slogan">Speak Fastur</p>
-            <h1 className="display">Важные разговоры лучше репетировать.</h1>
+            <p className="hero-slogan">
+              <span>Speak</span> Fastur
+            </p>
             <p className="hero-copy">Fastur помогает найти точные слова до того, как разговор начнётся. Практикуйте деловые сценарии с AI, отвечая голосом, и получайте разбор, которому можно доверять.</p>
             <div className="hero-actions">
               <button className="btn btn-primary" onClick={openCatalog} data-testid="button-hero-start">
