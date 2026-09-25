@@ -1,0 +1,3 @@
+{
+  "tests/test_auth_v8.py::test_me_for_admin": true
+}
