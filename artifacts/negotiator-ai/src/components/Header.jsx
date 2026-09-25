@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
 import { Menu, UserRound } from 'lucide-react';
-import logo from '@/assets/logo.png';
+import logo from 'src/assets/logo.png';
 
 function Logo() {
   return (
