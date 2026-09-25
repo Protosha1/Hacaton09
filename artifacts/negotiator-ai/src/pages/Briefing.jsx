@@ -1,7 +1,7 @@
 // Брифинг: описание ситуации и цели перед стартом переговоров.
 import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
-import { ArrowRight, MessageSquareText } from 'lucide-react';
+import { ArrowRight, Mic } from 'lucide-react';
 import { negotiationApi } from '@/lib/api';
 import { difficultyLabels, difficultyXp } from '@/data/categories';
 
@@ -72,10 +72,10 @@ export default function Briefing() {
       </div>
 
       <div className="mic-check">
-        <div className="mic-icon"><MessageSquareText size={20} /></div>
+        <div className="mic-icon"><Mic size={20} /></div>
         <div style={{ flex: 1 }}>
-          <strong>Вы будете переписываться с {briefing.opponent_role || 'собеседником'}</strong>
-          <p className="muted" style={{ fontSize: 12, margin: '5px 0 0' }}>Формулируйте мысли так же чётко, как сказали бы вслух — AI реагирует на содержание.</p>
+          <strong>Вы будете говорить вслух с {briefing.opponent_role || 'собеседником'}</strong>
+          <p className="muted" style={{ fontSize: 12, margin: '5px 0 0' }}>Разрешите доступ к микрофону — Fastur распознает вашу речь, а собеседник ответит текстом.</p>
         </div>
       </div>
 

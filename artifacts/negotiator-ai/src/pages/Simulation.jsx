@@ -1,8 +1,17 @@
-// Экран симуляции: текстовый диалог с AI-собеседником.
+// Экран симуляции: пользователь говорит голосом, AI-собеседник отвечает текстом.
 import { useEffect, useRef, useState } from 'react';
 import { Redirect, useLocation } from 'wouter';
-import { Send, User, Bot, X } from 'lucide-react';
+import { Mic, Square, User, Bot, X, Loader2 } from 'lucide-react';
 import { negotiationApi } from '@/lib/api';
+
+// Подбираем поддерживаемый браузером формат записи (Safari/Chrome отличаются).
+function pickMimeType() {
+  const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'];
+  for (const type of candidates) {
+    if (window.MediaRecorder?.isTypeSupported?.(type)) return type;
+  }
+  return '';
+}
 
 function loadActiveSession() {
   try {
@@ -17,29 +26,73 @@ export default function Session() {
   const [, navigate] = useLocation();
   const [session] = useState(loadActiveSession);
   const [messages, setMessages] = useState(() => (session ? [{ sender: 'ai', text: session.first_message }] : []));
-  const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
+  const [recording, setRecording] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const [error, setError] = useState('');
   const scrollRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const chunksRef = useRef([]);
+  const streamRef = useRef(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
 
+  useEffect(() => () => {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+  }, []);
+
   if (!session) return <Redirect to="/catalog" />;
 
-  const send = async () => {
-    const text = input.trim();
-    if (!text || sending) return;
-    setInput('');
-    setMessages((prev) => [...prev, { sender: 'user', text }]);
+  const startRecording = async () => {
+    if (recording || sending || finishing) return;
+    setError('');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      const mimeType = pickMimeType();
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      chunksRef.current = [];
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      recorder.onstop = () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(chunksRef.current, { type: mimeType || 'audio/webm' });
+        sendVoice(blob);
+      };
+      mediaRecorderRef.current = recorder;
+      recorder.start();
+      setRecording(true);
+    } catch (err) {
+      setError('Не удалось получить доступ к микрофону. Разрешите доступ и попробуйте снова.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && recording) {
+      mediaRecorderRef.current.stop();
+      setRecording(false);
+    }
+  };
+
+  const sendVoice = async (blob) => {
+    if (blob.size < 1000) {
+      setError('Запись слишком короткая. Удержите кнопку и скажите фразу.');
+      return;
+    }
     setSending(true);
     setError('');
     try {
-      const res = await negotiationApi.message({ session_id: session.session_id, message: text });
-      setMessages((prev) => [...prev, { sender: 'ai', text: res.reply }]);
+      const formData = new FormData();
+      formData.append('session_id', session.session_id);
+      formData.append('audio', blob, 'voice.webm');
+      const res = await negotiationApi.voice(formData);
+      setMessages((prev) => [
+        ...prev,
+        { sender: 'user', text: res.user_text || '(не удалось распознать речь)' },
+        { sender: 'ai', text: res.reply_text },
+      ]);
       if (res.session_status === 'finished') {
         await finish(true);
       }
@@ -94,30 +147,29 @@ export default function Session() {
               </div>
             </div>
           ))}
-          {sending && <p className="muted" style={{ fontSize: 12 }}>Собеседник печатает…</p>}
+          {sending && <p className="muted" style={{ fontSize: 12 }}><Loader2 size={12} className="spin" style={{ verticalAlign: '-2px', marginRight: 6 }} />Собеседник печатает…</p>}
         </div>
 
         {error && <span className="form-error">{error}</span>}
 
-        <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
-            placeholder="Напишите свою реплику…"
+        <div className="voice-control-wrap">
+          <button
+            className={`btn btn-primary mic-button${recording ? ' mic-button-active' : ''}`}
+            onClick={recording ? stopRecording : startRecording}
             disabled={sending || finishing}
-            data-testid="input-message"
-            style={{ flex: 1 }}
-          />
-          <button className="btn btn-primary" onClick={send} disabled={sending || finishing || !input.trim()} data-testid="button-send-message">
-            <Send size={16} />
+            data-testid="button-voice-record"
+          >
+            {recording ? <Square size={18} /> : <Mic size={18} />}
           </button>
+          <p className="muted" style={{ fontSize: 12, margin: '10px 0 0' }}>
+            {recording ? 'Идёт запись… нажмите ещё раз, чтобы отправить' : sending ? 'Распознаём и отправляем реплику…' : 'Нажмите и скажите свою реплику вслух'}
+          </p>
         </div>
 
         <button className="btn btn-quiet" style={{ marginTop: 16 }} onClick={() => setConfirm(true)} data-testid="button-end-session">
           Завершить разговор <X size={15} />
         </button>
-        <p className="muted" style={{ fontSize: 11, marginTop: 12 }}>Не нужно быть идеальным. Просто продолжайте.</p>
+        <p className="muted" style={{ fontSize: 11, marginTop: 12 }}>Не нужно быть идеальным. Просто продолжайте — говорите, а Fastur ответит текстом.</p>
       </div>
 
       {confirm && (

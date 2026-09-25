@@ -4,15 +4,16 @@ import { useLocation } from 'wouter';
 import { ArrowRight, ChevronDown, ShieldCheck, X } from 'lucide-react';
 import { categories, categoryLabel } from '@/data/categories';
 import { scenariosApi } from '@/lib/api';
+import logo from '@/assets/logo.png';
 
 const faqItems = [
   {
     q: 'Это настоящий разговор с человеком?',
-    a: 'Нет, в симуляции вы общаетесь текстом с AI-собеседником. Он реагирует на ваши аргументы и меняет тактику по ходу диалога.',
+    a: 'Нет, в симуляции вы говорите голосом, а AI-собеседник отвечает вам текстом. Он реагирует на ваши аргументы и меняет тактику по ходу диалога.',
   },
   {
     q: 'Нужно ли включать камеру?',
-    a: 'Нет. Важны содержание и формулировки, а не внешний вид.',
+    a: 'Нет, камера не нужна. Понадобится только микрофон — важны содержание и формулировки, а не внешний вид.',
   },
   {
     q: 'Что произойдёт с моими записями?',
@@ -43,8 +44,9 @@ export default function Landing({ user }) {
         <div className="hero-grid">
           <div>
             <span className="eyebrow">Тренажёр сложных разговоров</span>
+            <p className="hero-slogan">Speak Fastur</p>
             <h1 className="display">Важные разговоры лучше <span style={{ color: '#cbb7ff' }}>репетировать.</span></h1>
-            <p className="hero-copy">Переговорная помогает найти точные слова до того, как разговор начнётся. Практикуйте деловые сценарии с AI и получайте разбор, которому можно доверять.</p>
+            <p className="hero-copy">Fastur помогает найти точные слова до того, как разговор начнётся. Практикуйте деловые сценарии с AI, отвечая голосом, и получайте разбор, которому можно доверять.</p>
             <div className="hero-actions">
               <button className="btn btn-primary" onClick={openCatalog} data-testid="button-hero-start">
                 Начать тренировку <ArrowRight size={16} />
@@ -91,7 +93,7 @@ export default function Landing({ user }) {
           <article className="card step-card card-lavender">
             <span className="step-no">02 / РЕПЕТИЦИЯ</span>
             <h3>Поговорите с AI</h3>
-            <p className="soft">Пишите так, как говорили бы вслух, и учитесь реагировать в моменте.</p>
+            <p className="soft">Говорите вслух, как в настоящем разговоре, а AI отвечает текстом — и учитесь реагировать в моменте.</p>
           </article>
           <article className="card step-card">
             <span className="step-no">03 / РАЗБОР</span>
@@ -109,7 +111,7 @@ export default function Landing({ user }) {
             <p className="muted">Можно понимать BATNA и всё равно теряться, когда собеседник давит. Мы тренируем не память, а спокойное действие.</p>
           </div>
           <div className="compare-list">
-            <div className="compare-row"><div className="compare-cell">Книга рассказывает, как бывает</div><div className="compare-cell highlight">Переговорная даёт попробовать</div></div>
+            <div className="compare-row"><div className="compare-cell">Книга рассказывает, как бывает</div><div className="compare-cell highlight">Fastur даёт попробовать</div></div>
             <div className="compare-row"><div className="compare-cell">Совет остаётся общим</div><div className="compare-cell highlight">Разбор привязан к вашей фразе</div></div>
             <div className="compare-row"><div className="compare-cell">Читаете в удобный момент</div><div className="compare-cell highlight">Репетируете под давлением</div></div>
             <div className="compare-row"><div className="compare-cell">Нет безопасного места для ошибки</div><div className="compare-cell highlight">Ошибка становится материалом</div></div>
@@ -205,8 +207,8 @@ export default function Landing({ user }) {
       </section>
 
       <footer className="footer">
-        <div className="container-wide" style={{ display: 'flex', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
-          <span>Переговорная · личная арена для важных слов</span>
+        <div className="container-wide" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+          <span><img src={logo} alt="Fastur" className="footer-logo" />Fastur · Speak Fastur</span>
           <span>Практика конфиденциальна</span>
         </div>
       </footer>

@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
-import { Menu, Sparkles, UserRound } from 'lucide-react';
+import { Menu, UserRound } from 'lucide-react';
+import logo from '@/assets/logo.png';
 
 function Logo() {
   return (
     <Link href="/" className="brand" data-testid="link-logo">
-      <span className="brand-mark"><Sparkles size={17} /></span>
-      <span>Переговорная</span>
+      <img src={logo} alt="Fastur" className="brand-mark-img" />
+      <span>Fastur</span>
     </Link>
   );
 }
