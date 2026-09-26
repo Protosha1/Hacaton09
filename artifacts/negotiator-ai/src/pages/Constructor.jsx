@@ -146,7 +146,7 @@ export default function ConstructorPage() {
           </button>
         </div>
 
-        <div className="card" style={{ padding: 28, minHeight: 400, background: 'radial-gradient(circle at 80% 10%,rgba(188,160,255,.25),transparent 42%),rgba(39,32,72,.8)' }}>
+        <div className="card" style={{ padding: 28, minHeight: 400, background: 'radial-gradient(circle at 80% 10%,rgba(188,160,255,.25),transparent 42%),rgba(39,32,72,0.96)' }}>
           <span className="eyebrow">Предпросмотр</span>
           <h2 className="display" style={{ fontSize: 36, margin: '21px 0 12px' }}>{selected?.name}</h2>
           <p className="soft" style={{ lineHeight: 1.65, fontSize: 14 }}>{selected?.description}</p>

@@ -150,7 +150,7 @@ export default function AdminCaseNew({ onToast }) {
               <textarea id="admin-initial" value={initialMessage} onChange={(e) => setInitialMessage(e.target.value)} placeholder="Чем оппонент открывает разговор" />
             </div>
 
-            <div className="card" style={{ marginTop: 22, padding: 17, background: 'rgba(157,227,229,.08)', borderColor: 'rgba(157,227,229,.2)' }}>
+            <div className="card" style={{ marginTop: 22, padding: 17, background: 'rgba(20,38,40,0.94)', borderColor: 'rgba(157,227,229,.3)' }}>
               <div style={{ display: 'flex', gap: 10 }}>
                 <Info size={17} color="#9de3e5" />
                 <span className="soft" style={{ fontSize: 12, lineHeight: 1.5 }}>

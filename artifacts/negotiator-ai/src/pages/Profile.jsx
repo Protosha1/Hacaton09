@@ -164,7 +164,7 @@ export default function Profile({ user, onToast }) {
           <h2 style={{ margin: '10px 0 20px', fontSize: 22 }}>То, что уже становится привычкой.</h2>
           <div className="skill-grid">
             {(skills.length ? skills : Object.keys(skillLabels).map((metric) => ({ metric, current_value: 0, sessions_count: 0 }))).map((skill) => (
-              <div className="skill-card" key={skill.metric} style={{ background: 'rgba(17,14,37,.28)', borderRadius: 15 }}>
+              <div className="skill-card" key={skill.metric} style={{ background: 'rgba(17,14,37,0.9)', borderRadius: 15 }}>
                 <span className="muted" style={{ fontSize: 12 }}>{skillLabels[skill.metric] || skill.metric}</span>
                 <div className="skill-score">{skill.current_value}%</div>
                 <span className="muted" style={{ fontSize: 11 }}>{skill.sessions_count} сессий</span>

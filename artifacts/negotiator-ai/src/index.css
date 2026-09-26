@@ -159,15 +159,18 @@ h1.display { font-size: clamp(30px, 4vw, 48px); }
   .mobile-menu { display: inline-flex; }
 }
 
-/* ===== Карточки ===== */
+/* ===== Карточки =====
+   Фон почти непрозрачный (0.97), чтобы блоки не "просвечивали" на фоне
+   радиальных градиентов страницы — раньше alpha была 0.55/0.6 и сквозь
+   карточки было видно задний план. */
 .card {
-  background: var(--panel);
+  background: linear-gradient(160deg, rgba(46, 38, 84, 0.97), rgba(26, 21, 51, 0.97));
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 18px;
 }
 .card-lavender {
-  background: linear-gradient(160deg, rgba(203,183,255,0.16), rgba(39,32,72,0.6));
+  background: linear-gradient(160deg, rgba(80, 62, 143, 0.97), rgba(35, 29, 64, 0.97));
   border-color: rgba(203,183,255,0.28);
 }
 
@@ -304,9 +307,71 @@ input:focus, select:focus, textarea:focus { border-color: var(--lavender); }
 textarea { min-height: 90px; resize: vertical; font-family: inherit; }
 form .field + .field { margin-top: 16px; }
 form { margin-top: 22px; }
+/* Отступ перед кнопкой сабмита, чтобы она не "прилипала" к полю пароля
+   (или к сообщению об ошибке, если оно показано). */
+form .btn { margin-top: 22px; }
 .form-error { display: block; color: var(--danger); font-size: 12px; margin: 10px 0; }
 .form-footer { margin-top: 18px; text-align: center; font-size: 13px; color: var(--muted); }
 .form-footer a { color: var(--mint); font-weight: 600; }
+
+/* Поле пароля с кнопкой-глазиком для показа/скрытия символов */
+.field-password { position: relative; }
+.field-password input { padding-right: 42px; }
+.password-toggle {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+}
+.password-toggle:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+
+/* ===== Разделение пользовательского и админского входа/регистрации ===== */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 22px;
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.auth-divider::before, .auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.auth-admin-link {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255,255,255,0.03);
+  color: var(--soft);
+  font-size: 13px;
+  font-weight: 600;
+}
+.auth-admin-link:hover { border-color: var(--gold); color: var(--gold); }
+.auth-card-admin { border-color: rgba(243, 209, 139, 0.35); }
+.auth-card-admin .eyebrow { color: var(--gold); }
+.auth-card-admin .btn-primary {
+  background: linear-gradient(135deg, var(--gold), #e0a94f);
+  color: #241a08;
+}
 
 .stepper { display: flex; gap: 6px; margin: 16px 0 22px; }
 .stepper span { flex: 1; height: 3px; border-radius: 3px; background: rgba(255,255,255,0.1); }

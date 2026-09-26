@@ -86,7 +86,7 @@ export default function Invite() {
       </div>
 
       {preview.user_goal && (
-        <div className="card" style={{ padding: 20, background: 'rgba(17,14,37,.28)' }}>
+        <div className="card" style={{ padding: 20, background: 'rgba(17,14,37,0.9)' }}>
           <span className="eyebrow">Цель</span>
           <p style={{ margin: '12px 0 0', lineHeight: 1.6 }}>{preview.user_goal}</p>
         </div>

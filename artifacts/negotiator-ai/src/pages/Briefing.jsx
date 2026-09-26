@@ -66,7 +66,7 @@ export default function Briefing() {
         <div className="meta-box"><small>БАЗОВАЯ НАГРАДА</small><strong>{difficultyXp[difficulty]} XP</strong></div>
       </div>
 
-      <div className="card" style={{ padding: 20, background: 'rgba(17,14,37,.28)' }}>
+      <div className="card" style={{ padding: 20, background: 'rgba(17,14,37,0.9)' }}>
         <span className="eyebrow">Ваша цель</span>
         <p style={{ margin: '12px 0 0', lineHeight: 1.6 }}>{briefing.user_goal}</p>
       </div>

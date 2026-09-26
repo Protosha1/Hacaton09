@@ -196,7 +196,7 @@ export default function Session() {
                 style={{
                   padding: '10px 14px',
                   borderRadius: 14,
-                  background: m.sender === 'user' ? undefined : 'rgba(17,14,37,.35)',
+                  background: m.sender === 'user' ? undefined : 'rgba(17,14,37,0.92)',
                   maxWidth: '80%',
                   lineHeight: 1.5,
                   fontSize: 14,
