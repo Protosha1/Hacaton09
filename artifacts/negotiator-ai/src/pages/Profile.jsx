@@ -5,6 +5,23 @@ import { ArrowRight, ChevronRight, Play } from 'lucide-react';
 import { negotiationApi, usersApi } from '@/lib/api';
 import { categoryLabel } from '@/data/categories';
 
+// Пороги рангов — зеркалят backend (app/core/xp.py RANKS), т.к. API отдаёт
+// только total_xp и rank_level/rank_name, без готового процента до следующего.
+const RANKS = [
+  { level: 1, minXp: 0, maxXp: 100 },
+  { level: 2, minXp: 100, maxXp: 400 },
+  { level: 3, minXp: 400, maxXp: 700 },
+  { level: 4, minXp: 700, maxXp: 1200 },
+];
+
+function xpProgress(totalXp = 0, rankLevel = 1) {
+  const rank = RANKS.find((r) => r.level === rankLevel) || RANKS[RANKS.length - 1];
+  const isMax = rank.level === RANKS[RANKS.length - 1].level;
+  const span = rank.maxXp - rank.minXp;
+  const percent = isMax ? 100 : Math.min(100, Math.max(0, ((totalXp - rank.minXp) / span) * 100));
+  return { percent, isMax, xpToNext: isMax ? 0 : Math.max(0, rank.maxXp - totalXp) };
+}
+
 const skillLabels = {
   emotion_control: 'Управление эмоциями',
   batna: 'BATNA (запасной план)',
@@ -31,6 +48,12 @@ export default function Profile({ user, onToast }) {
 
   const visibleHistory = showHistory ? sessions : sessions.slice(0, 1);
   const firstName = user.name?.split(' ')[0] || user.email.split('@')[0];
+  const progressBar = xpProgress(user.total_xp, user.rank_level);
+
+  const resumeInterrupted = () => {
+    if (interrupted?.scenario_id) navigate(`/constructor?case=${interrupted.scenario_id}`);
+    else navigate('/catalog');
+  };
 
   return (
     <>
@@ -62,20 +85,24 @@ export default function Profile({ user, onToast }) {
         <div className="card rank-card">
           <div className="rank-number">ВСЕГО НАКОПЛЕНО XP</div>
           <div className="xp">{user.total_xp} <span style={{ fontSize: 14, color: '#aaa2c2' }}>XP</span></div>
-          <div className="progress"><i style={{ width: `${Math.min(100, (user.rank_level / 4) * 100)}%` }} /></div>
+          <div className="progress"><i style={{ width: `${progressBar.percent}%` }} /></div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 9, fontSize: 11 }}>
             <span className="muted">Уровень {user.rank_level}</span>
-            <span className="muted">из 4</span>
+            <span className="muted">
+              {progressBar.isMax ? 'Максимальный ранг' : `Ещё ${progressBar.xpToNext} XP до следующего`}
+            </span>
           </div>
         </div>
 
         {interrupted ? (
           <div className="card recommendation">
-            <span className="eyebrow">Продолжить</span>
+            <span className="eyebrow">Незавершённый разговор</span>
             <h3>{interrupted.scenario_name || 'Незавершённый разговор'}</h3>
-            <p className="muted" style={{ fontSize: 12 }}>Вы остановились на середине. Вернитесь, когда будете готовы.</p>
-            <button className="btn btn-small btn-primary" onClick={() => onToast?.('Откройте кейс заново в каталоге, чтобы продолжить')} data-testid="button-resume">
-              К каталогу <ArrowRight size={14} />
+            <p className="muted" style={{ fontSize: 12 }}>
+              Продолжить с того же места нельзя — но вы можете начать этот кейс заново.
+            </p>
+            <button className="btn btn-small btn-primary" onClick={resumeInterrupted} data-testid="button-resume">
+              Начать заново <ArrowRight size={14} />
             </button>
           </div>
         ) : (

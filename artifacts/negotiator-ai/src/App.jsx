@@ -18,6 +18,7 @@ import Briefing from '@/pages/Briefing';
 import Session from '@/pages/Simulation';
 import Analytics from '@/pages/Analytics';
 import AuthPage from '@/pages/auth/Login';
+import Invite from '@/pages/Invite';
 import AdminCases from '@/pages/admin/MyCases';
 import AdminCaseNew from '@/pages/admin/CaseConstructor';
 import NotFound from '@/pages/not-found';
@@ -41,6 +42,11 @@ function AppContent() {
         </Route>
         <Route path="/register/admin">
           <PublicShell user={user} onLogout={logout}><AuthPage mode="register" admin /></PublicShell>
+        </Route>
+        <Route path="/invite/:code">
+          <PublicShell user={user} onLogout={logout}>
+            <div className="page container-wide"><Invite /></div>
+          </PublicShell>
         </Route>
         <Route path="/onboarding">
           <PublicShell user={user} onLogout={logout}><Onboarding /></PublicShell>

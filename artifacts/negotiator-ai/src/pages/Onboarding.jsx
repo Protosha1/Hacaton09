@@ -25,7 +25,8 @@ export default function Onboarding() {
     setError('');
     try {
       await completeOnboarding(selected, experience);
-      navigate('/profile');
+      const pendingInvite = sessionStorage.getItem('negotiator-pending-invite');
+      navigate(pendingInvite ? `/invite/${pendingInvite}` : '/profile');
     } catch (err) {
       setError(err.message);
     } finally {

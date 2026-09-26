@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Redirect, useLocation } from 'wouter';
 import { Mic, Square, User, Bot, X, Loader2 } from 'lucide-react';
-import { negotiationApi } from '@/lib/api';
+import { negotiationApi, getToken } from '@/lib/api';
 
 // Подбираем поддерживаемый браузером формат записи (Safari/Chrome отличаются).
 function pickMimeType() {
@@ -22,10 +22,28 @@ function loadActiveSession() {
   }
 }
 
+// Ключ для сохранения истории реплик конкретной сессии — переживает
+// перезагрузку страницы (backend не умеет отдавать историю "на лету",
+// а сообщения sessions/{id}/messages появляются там только после ответа AI,
+// так что храним свою копию локально, привязанную к session_id).
+function transcriptKey(sessionId) {
+  return `negotiator-transcript-${sessionId}`;
+}
+
+function loadTranscript(sessionId, fallbackFirstMessage) {
+  try {
+    const raw = sessionStorage.getItem(transcriptKey(sessionId));
+    if (raw) return JSON.parse(raw);
+  } catch {
+    /* ignore corrupted cache */
+  }
+  return fallbackFirstMessage ? [{ sender: 'ai', text: fallbackFirstMessage }] : [];
+}
+
 export default function Session() {
   const [, navigate] = useLocation();
   const [session] = useState(loadActiveSession);
-  const [messages, setMessages] = useState(() => (session ? [{ sender: 'ai', text: session.first_message }] : []));
+  const [messages, setMessages] = useState(() => (session ? loadTranscript(session.session_id, session.first_message) : []));
   const [sending, setSending] = useState(false);
   const [recording, setRecording] = useState(false);
   const [confirm, setConfirm] = useState(false);
@@ -35,16 +53,55 @@ export default function Session() {
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
   const streamRef = useRef(null);
+  const finishedRef = useRef(false);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
 
+  // Каждое изменение переписываем в sessionStorage, чтобы при случайной
+  // перезагрузке страницы разговор не пропадал.
+  useEffect(() => {
+    if (!session) return;
+    sessionStorage.setItem(transcriptKey(session.session_id), JSON.stringify(messages));
+  }, [messages, session]);
+
   useEffect(() => () => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
   }, []);
 
+  // Если пользователь уходит со страницы (закрывает вкладку, обновляет,
+  // жмёт "назад") посреди незавершённого разговора — явно помечаем сессию
+  // прерванной на backend, а не оставляем её висеть в "ongoing" навсегда.
+  useEffect(() => {
+    if (!session) return undefined;
+    const markInterrupted = () => {
+      if (finishedRef.current) return;
+      const token = getToken();
+      if (!token) return;
+      const base = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/v1` : '/api/v1';
+      // sendBeacon здесь не подходит: он не умеет передавать заголовок
+      // Authorization, а без него backend ответит 401. fetch с keepalive
+      // поддерживает заголовки и переживает уход со страницы в браузерах
+      // на основе Chromium/Firefox.
+      fetch(`${base}/negotiation/${session.session_id}/interrupt`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        keepalive: true,
+      }).catch(() => {});
+    };
+    window.addEventListener('beforeunload', markInterrupted);
+    return () => {
+      window.removeEventListener('beforeunload', markInterrupted);
+      // Уход на другую страницу этого приложения (без перезагрузки) —
+      // тоже прерывание разговора, если он не был явно завершён.
+      markInterrupted();
+    };
+  }, [session]);
+
   if (!session) return <Redirect to="/catalog" />;
+
+  const hasUserMessage = messages.some((m) => m.sender === 'user');
 
   const startRecording = async () => {
     if (recording || sending || finishing) return;
@@ -91,7 +148,7 @@ export default function Session() {
       setMessages((prev) => [
         ...prev,
         { sender: 'user', text: res.user_text || '(не удалось распознать речь)' },
-        { sender: 'ai', text: res.reply_text },
+        { sender: 'ai', text: res.reply },
       ]);
       if (res.session_status === 'finished') {
         await finish(true);
@@ -108,8 +165,10 @@ export default function Session() {
     try {
       if (!alreadyFinished) await negotiationApi.end(session.session_id);
       else await negotiationApi.analysis(session.session_id).catch(() => negotiationApi.end(session.session_id));
+      finishedRef.current = true;
       sessionStorage.setItem('negotiator-last-session', session.session_id);
       sessionStorage.removeItem('negotiator-active-session');
+      sessionStorage.removeItem(transcriptKey(session.session_id));
       navigate('/analytics');
     } catch (err) {
       setError(err.message);
@@ -166,9 +225,21 @@ export default function Session() {
           </p>
         </div>
 
-        <button className="btn btn-quiet" style={{ marginTop: 16 }} onClick={() => setConfirm(true)} data-testid="button-end-session">
+        <button
+          className="btn btn-quiet"
+          style={{ marginTop: 16 }}
+          onClick={() => setConfirm(true)}
+          disabled={!hasUserMessage || sending}
+          title={hasUserMessage ? undefined : 'Скажите хотя бы одну реплику, прежде чем завершать'}
+          data-testid="button-end-session"
+        >
           Завершить разговор <X size={15} />
         </button>
+        {!hasUserMessage && (
+          <p className="muted" style={{ fontSize: 11, marginTop: 8 }}>
+            Разбор станет доступен после первой вашей реплики.
+          </p>
+        )}
         <p className="muted" style={{ fontSize: 11, marginTop: 12 }}>Не нужно быть идеальным. Просто продолжайте — говорите, а Fastur ответит текстом.</p>
       </div>
 

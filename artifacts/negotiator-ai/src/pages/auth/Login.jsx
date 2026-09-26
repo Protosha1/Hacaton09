@@ -34,8 +34,11 @@ export default function AuthPage({ mode, admin }) {
       } else {
         result = admin ? await registerAdmin(email, password, name) : await register(email, password, name);
       }
-      if (admin) navigate('/admin/cases');
-      else navigate(result?.status === 'active' ? '/profile' : '/onboarding');
+      if (result?.role === 'admin') navigate('/admin/cases');
+      else if (result?.status === 'active') {
+        const pendingInvite = sessionStorage.getItem('negotiator-pending-invite');
+        navigate(pendingInvite ? `/invite/${pendingInvite}` : '/profile');
+      } else navigate('/onboarding');
     } catch (err) {
       setError(err.message);
     } finally {

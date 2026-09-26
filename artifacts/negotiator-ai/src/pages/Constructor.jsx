@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { categories, categoryLabel, difficultyLabels, difficultyXp, experienceLevels } from '@/data/categories';
-import { scenariosApi } from '@/lib/api';
+import { scenariosApi, usersApi } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 
 const relationshipOptions = [
@@ -34,7 +34,16 @@ export default function ConstructorPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    scenariosApi.list().then((list) => {
+    Promise.all([
+      scenariosApi.list(),
+      user?.id ? usersApi.addedCases(user.id).then((r) => r.cases || []).catch(() => []) : Promise.resolve([]),
+    ]).then(([publicList, added]) => {
+      // Публичный каталог + кейсы, добавленные по ссылке-приглашению
+      // (иначе их невозможно было бы выбрать и сыграть).
+      const addedAsScenarios = added.map((c) => ({ ...c, id: c.case_id }));
+      const byId = new Map();
+      [...publicList, ...addedAsScenarios].forEach((s) => byId.set(s.id, s));
+      const list = Array.from(byId.values());
       setScenarios(list);
       const preset = params.get('case') && list.find((s) => s.id === params.get('case'));
       if (preset) {
@@ -45,7 +54,7 @@ export default function ConstructorPage() {
         setCaseId(list[0].id);
       }
     }).finally(() => setLoading(false));
-  }, []);
+  }, [user?.id]);
 
   const categoryCases = scenarios.filter((s) => s.category === category);
   const selected = scenarios.find((s) => s.id === caseId) || categoryCases[0] || scenarios[0];

@@ -71,9 +71,10 @@ export const inviteApi = {
 export const negotiationApi = {
   start: (payload) => unwrap(client.post('/negotiation/start', payload)).then((r) => r.data),
   message: (payload) => unwrap(client.post('/negotiation/message', payload)).then((r) => r.data),
-  voice: (formData) => unwrap(client.post('/negotiation/voice', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  })).then((r) => r.data),
+  // Content-Type НЕ указываем вручную: для FormData axios сам подставит
+  // multipart/form-data с корректным boundary. Если прописать заголовок
+  // явно без boundary, backend не сможет распарсить файл.
+  voice: (formData) => unwrap(client.post('/negotiation/voice', formData)).then((r) => r.data),
   interrupt: (sessionId) => unwrap(client.post(`/negotiation/${sessionId}/interrupt`)).then((r) => r.data),
   end: (sessionId) => unwrap(client.post(`/negotiation/end?session_id=${sessionId}`)).then((r) => r.data),
   analysis: (sessionId) => unwrap(client.get(`/negotiation/analysis/${sessionId}`)).then((r) => r.data),

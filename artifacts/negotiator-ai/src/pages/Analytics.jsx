@@ -4,7 +4,7 @@ import { Redirect, useLocation } from 'wouter';
 import { ArrowRight, Copy, RotateCcw } from 'lucide-react';
 import { negotiationApi } from '@/lib/api';
 
-const goalLabels = { achieved: 'Успех', partial: 'Частично', failed: 'Не достигнута' };
+const goalLabels = { yes: 'Успех', partial: 'Частично', no: 'Не достигнута' };
 
 export default function Analytics({ onToast }) {
   const [, navigate] = useLocation();
@@ -70,6 +70,25 @@ export default function Analytics({ onToast }) {
             </div>
           ))}
         </div>
+
+        {(data.spin_analysis || data.batna_analysis) && (
+          <div className="card" style={{ padding: 24, gridColumn: '1 / -1' }}>
+            <div className="skill-grid">
+              {data.spin_analysis && (
+                <div>
+                  <span className="eyebrow">SPIN</span>
+                  <p className="muted" style={{ marginTop: 10, fontSize: 13, lineHeight: 1.7 }}>{data.spin_analysis}</p>
+                </div>
+              )}
+              {data.batna_analysis && (
+                <div>
+                  <span className="eyebrow">BATNA</span>
+                  <p className="muted" style={{ marginTop: 10, fontSize: 13, lineHeight: 1.7 }}>{data.batna_analysis}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {(data.strengths?.length || data.weaknesses?.length || data.suggestions?.length) ? (

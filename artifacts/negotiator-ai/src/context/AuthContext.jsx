@@ -19,10 +19,14 @@ export function AuthProvider({ children }) {
       const me = await authApi.me();
       setUser(me);
       return me;
-    } catch {
-      // Токен протух или невалиден — тихо разлогиниваем.
-      setToken(null);
-      setUser(null);
+    } catch (err) {
+      // Токен протух/невалиден (401) — тихо разлогиниваем.
+      // Любая другая ошибка (сеть, 500) не должна выкидывать пользователя
+      // из аккаунта: backend мог просто на секунду не ответить.
+      if (err.status === 401) {
+        setToken(null);
+        setUser(null);
+      }
       return null;
     } finally {
       setLoading(false);
@@ -33,30 +37,29 @@ export function AuthProvider({ children }) {
     loadMe();
   }, [loadMe]);
 
-  const login = async (email, password) => {
-    const { access_token } = await authApi.login({ email, password });
-    setToken(access_token);
-    return loadMe();
-  };
-
-  const loginAdmin = async (email, password) => {
-    const { access_token } = await authApi.loginAdmin({ email, password });
+  // Общий помощник для login/register: сохраняет токен, тянет профиль
+  // и явно проверяет, что профиль правда загрузился — иначе бросает
+  // ошибку вместо того, чтобы притвориться успешным входом.
+  const authenticate = async (request) => {
+    const { access_token } = await request();
     setToken(access_token);
     const me = await loadMe();
-    return { ...me, role: 'admin' };
+    if (!me) {
+      setToken(null);
+      throw new Error('Не удалось загрузить профиль после входа. Попробуйте ещё раз.');
+    }
+    return me;
   };
 
-  const register = async (email, password, name) => {
-    const { access_token } = await authApi.register({ email, password, name, consent_given: true });
-    setToken(access_token);
-    return loadMe();
-  };
+  const login = (email, password) => authenticate(() => authApi.login({ email, password }));
 
-  const registerAdmin = async (email, password, name) => {
-    const { access_token } = await authApi.registerAdmin({ email, password, name, consent_given: true });
-    setToken(access_token);
-    return loadMe();
-  };
+  const loginAdmin = (email, password) => authenticate(() => authApi.loginAdmin({ email, password }));
+
+  const register = (email, password, name) =>
+    authenticate(() => authApi.register({ email, password, name, consent_given: true }));
+
+  const registerAdmin = (email, password, name) =>
+    authenticate(() => authApi.registerAdmin({ email, password, name, consent_given: true }));
 
   const completeOnboarding = async (directions, experienceLevel) => {
     const updated = await authApi.onboarding({ directions, experience_level: experienceLevel });
