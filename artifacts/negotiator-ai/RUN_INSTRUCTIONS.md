@@ -34,8 +34,9 @@ uvicorn app.main:app --host 127.0.0.1 --port 8000
 в `artifacts/negotiator-ai`, заменив прежнее содержимое).
 
 ```bash
-cd negotiator-ai
+cd ваш путь/negotiator-ai
 npm install
+npm approve-scripts --allow-scripts-pending
 npm run dev
 ```
 
