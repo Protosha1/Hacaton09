@@ -1,9 +1,21 @@
 # app/main.py
 import asyncio
 import logging
+import os
+import shutil
 from contextlib import asynccontextmanager
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
+
+# Отключаем запись .pyc в __pycache__ и на всякий случай сносим уже
+# существующие — были подозрения, что где-то в проекте завалялся
+# устаревший скомпилированный кеш с более старой (битой по кодировке)
+# версией модуля app.core.xp, из-за чего на диске строка была верной,
+# а в рантайме — нет. Ставим это максимально рано, до всех остальных
+# импортов приложения.
+os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+for _pycache in Path(__file__).resolve().parent.rglob("__pycache__"):
+    shutil.rmtree(_pycache, ignore_errors=True)
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

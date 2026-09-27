@@ -138,15 +138,20 @@ async def send_voice_message(
         user_text = await VoiceService.speech_to_text(audio_bytes, language=language)
     except ValueError as e:
         raise HTTPException(400, detail=str(e))
-    except Exception:
+    except Exception as e:
         # Любая другая ошибка распознавания (например, отсутствует ffmpeg,
         # модель не смогла обработать формат аудио) не должна улетать как
         # "сырой" 500 — иначе фронтенд не знает, что сказать пользователю,
-        # и микрофон выглядит как "просто не работает".
+        # и микрофон выглядит как "просто не работает". Настоящую причину
+        # (тип исключения + сообщение) кладём прямо в detail — так не
+        # нужно лезть в консоль сервера, чтобы понять, что случилось.
         logger.exception("Voice recognition failed for session %s", session_id)
         raise HTTPException(
             400,
-            detail="Не удалось распознать речь. Проверьте микрофон и попробуйте сказать фразу ещё раз.",
+            detail=(
+                "Не удалось распознать речь. Проверьте микрофон и попробуйте "
+                f"сказать фразу ещё раз. [{type(e).__name__}: {e}]"
+            ),
         )
 
     service = NegotiationService(db)

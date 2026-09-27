@@ -87,7 +87,7 @@ class UserResponse(BaseModel):
     experience_level: str
     total_xp: int = 0
     rank_level: int = 1
-    rank_name: str = "Ученик школы диалога"
+    rank_name: str = "\u0423\u0447\u0435\u043d\u0438\u043a \u0448\u043a\u043e\u043b\u044b \u0434\u0438\u0430\u043b\u043e\u0433\u0430"
     consent_given: bool = False
 
     model_config = ConfigDict(from_attributes=True)
