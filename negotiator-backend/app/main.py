@@ -17,6 +17,7 @@ from app.core.error_handlers import (
     validation_exception_handler,
     sqlalchemy_exception_handler,
     generic_exception_handler,
+    UTF8JSONResponse,
 )
 from app.api.v1 import health, negotiation, scenarios, auth, users, invites
 from app.services.voice_service import VoiceService
@@ -68,6 +69,7 @@ app = FastAPI(
     version=settings.APP_VERSION,
     description="AI-powered business negotiation trainer API",
     lifespan=lifespan,
+    default_response_class=UTF8JSONResponse,
 )
 
 

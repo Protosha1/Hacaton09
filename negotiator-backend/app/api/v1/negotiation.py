@@ -1,4 +1,6 @@
 ﻿# app/api/v1/negotiation.py
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -29,6 +31,7 @@ from app.core.constants import SessionStatus
 
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 _VALID_TYPES = {"strong", "neutral", "weak"}
@@ -128,10 +131,23 @@ async def send_voice_message(
 ):
     audio_bytes = await audio.read()
 
+    if not audio_bytes:
+        raise HTTPException(400, detail="Пустая запись. Проверьте доступ к микрофону и попробуйте снова.")
+
     try:
         user_text = await VoiceService.speech_to_text(audio_bytes, language=language)
     except ValueError as e:
         raise HTTPException(400, detail=str(e))
+    except Exception:
+        # Любая другая ошибка распознавания (например, отсутствует ffmpeg,
+        # модель не смогла обработать формат аудио) не должна улетать как
+        # "сырой" 500 — иначе фронтенд не знает, что сказать пользователю,
+        # и микрофон выглядит как "просто не работает".
+        logger.exception("Voice recognition failed for session %s", session_id)
+        raise HTTPException(
+            400,
+            detail="Не удалось распознать речь. Проверьте микрофон и попробуйте сказать фразу ещё раз.",
+        )
 
     service = NegotiationService(db)
     result = await service.process_message(

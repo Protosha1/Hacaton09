@@ -24,6 +24,17 @@
 
 html, body { height: 100%; }
 
+/* Говорим браузеру, что UI тёмный, чтобы нативные контролы (выпадающие
+   списки <select>, чекбоксы, скроллбары) сами подбирали контрастные
+   цвета — это плюс к явным стилям select/option ниже, а не вместо них,
+   т.к. часть браузеров/ОС всё равно игнорирует color-scheme для <option>. */
+:root { color-scheme: dark; }
+
+/* Подстраховка от горизонтального скролла: если где-то на странице
+   элемент случайно станет шире контейнера (см. .btn ниже), он не будет
+   расширять всю страницу и вылезать за её границы. */
+html, body { overflow-x: hidden; }
+
 body {
   margin: 0;
   background:
@@ -89,6 +100,12 @@ h1.display { font-size: clamp(30px, 4vw, 48px); }
   font-size: 14px;
   transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
   white-space: nowrap;
+  /* Без этого кнопка с white-space:nowrap внутри flex-родителя с flex:1
+     (например, ряд "Назад / Сохранить как черновик / Сохранить и
+     опубликовать") не может сжаться меньше ширины своего текста — из-за
+     этого весь ряд кнопок раздвигал карточку и уходил за границы страницы
+     на узких экранах. min-width: 0 разрешает флекс-элементу сжиматься. */
+  min-width: 0;
 }
 .btn:hover:not(:disabled) { transform: translateY(-1px); border-color: rgba(255,255,255,0.28); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
@@ -101,6 +118,14 @@ h1.display { font-size: clamp(30px, 4vw, 48px); }
 .btn-quiet { background: transparent; border-color: transparent; }
 .btn-quiet:hover:not(:disabled) { background: rgba(255,255,255,0.06); }
 .btn-small { padding: 8px 14px; font-size: 13px; }
+
+/* На узких экранах длинные подписи кнопок ("Сохранить как черновик",
+   "Сохранить и опубликовать") всё равно не помещаются в одну строку даже
+   после того как кнопка сжалась (см. min-width:0 выше) — разрешаем им
+   переноситься по словам вместо того, чтобы вылезать за карточку/страницу. */
+@media (max-width: 480px) {
+  .btn { white-space: normal; text-align: center; }
+}
 
 /* ===== Header ===== */
 .topbar {
@@ -304,6 +329,19 @@ input, select, textarea {
   outline: none;
 }
 input:focus, select:focus, textarea:focus { border-color: var(--lavender); }
+/* Закрытый <select> у нас тёмный (стили выше), но сам выпадающий список
+   <option> браузер рисует своей нативной палитрой — обычно белый фон.
+   Со светлым цветом текста (var(--text)) на белом фоне пункты были
+   практически невидимы. Задаём option цвета явно. */
+select option {
+  background: var(--panel-solid);
+  color: var(--text);
+}
+select option:checked,
+select option:hover {
+  background: var(--lavender);
+  color: #1a1030;
+}
 textarea { min-height: 90px; resize: vertical; font-family: inherit; }
 form .field + .field { margin-top: 16px; }
 form { margin-top: 22px; }

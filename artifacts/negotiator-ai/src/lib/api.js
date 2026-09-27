@@ -32,7 +32,11 @@ function unwrap(promise) {
     let message = 'Что-то пошло не так. Попробуйте ещё раз.';
     if (data?.detail) message = data.detail;
     else if (data?.details?.length) message = data.details.map((d) => d.msg).join('; ');
+    // Подстраховка: если бэкенд (или старая закешированная сборка) всё же
+    // вернул ключ "error" вместо "detail", не проглатываем сообщение молча.
+    else if (typeof data?.error === 'string') message = data.error;
     else if (err.message === 'Network Error') message = 'Не удаётся связаться с сервером. Backend запущен?';
+    else if (!err.response) message = 'Не удаётся связаться с сервером. Проверьте соединение и попробуйте снова.';
     const wrapped = new Error(message);
     wrapped.status = err.response?.status;
     throw wrapped;
