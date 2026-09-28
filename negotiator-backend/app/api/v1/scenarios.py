@@ -1,4 +1,4 @@
-# app/api/v1/scenarios.py
+
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status as http_status
 from sqlalchemy.ext.asyncio import AsyncSession

@@ -10,7 +10,7 @@ cd negotiator-backend
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
-python fix_encoding.py          # и заполнить SECRET_KEY
+python fix_encoding.py          
 alembic upgrade head
 python seed.py                  # демо-сценарии
 python seed_cases.py            # 90 кейсов
