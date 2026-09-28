@@ -107,7 +107,7 @@ class NegotiationService:
         first_msg = Message(
             session_id=session.id,
             sender="ai",
-            text=scenario.initial_message or "Hello. Let's begin.",
+            text=scenario.initial_message or "Здравствуйте. Давайте начнём.",
         )
         self.db.add(first_msg)
         await self.db.commit()
@@ -120,7 +120,7 @@ class NegotiationService:
             "difficulty": session.difficulty,
             "relationship": session.relationship,
             "power_balance": session.power_balance,
-            "first_message": scenario.initial_message or "Hello. Let's begin.",
+            "first_message": scenario.initial_message or "Здравствуйте. Давайте начнём.",
         }
 
     async def process_message(

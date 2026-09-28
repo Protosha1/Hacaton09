@@ -1,5 +1,4 @@
-﻿# app/models/scenario.py
-from sqlalchemy import Column, String, Text, JSON, DateTime, ForeignKey
+﻿from sqlalchemy import Column, String, Text, JSON, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime, UTC
 import uuid

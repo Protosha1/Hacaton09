@@ -1,4 +1,3 @@
-# app/models/negotiation.py
 from sqlalchemy import Column, String, Text, DateTime, ForeignKey, JSON
 from sqlalchemy.orm import relationship as sa_relationship
 from datetime import datetime, UTC
