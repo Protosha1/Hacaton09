@@ -1,7 +1,7 @@
 # Как запустить NegotiatorAI (frontend + backend)
 
 Должен быть установлен Python c PATH (при установке отметьте Add Python to PATH)
-## 1. Backend (без изменений)
+## 1. Backend 
 
 ```bash
 cd negotiator-backend
@@ -25,7 +25,7 @@ uvicorn app.main:app --host 127.0.0.1 --port 8000
 Обычного пользователя проще всего завести прямо через фронтенд (форма
 регистрации), либо через Swagger `/docs`.
 
-## 2. Frontend (то, что было дополнено)
+## 2. Frontend 
 
 ```bash
 cd ваш путь/negotiator-ai
