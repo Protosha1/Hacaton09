@@ -36,6 +36,7 @@ uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```bash
 cd ваш путь/negotiator-ai
 (если не установлен Node.js)
+python install_nodejs.py
 n.bat install
 n.bat approve-scripts --allow-scripts-pending
 n.bat run dev
