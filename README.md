@@ -1,8 +1,5 @@
 # Как запустить NegotiatorAI (frontend + backend)
 
-Бэкенд не менялся — используются те инструкции, что уже были в репозитории
-(`negotiator-backend/SETUP_FOR_FRONTEND.md`). Ниже — весь путь целиком.
-
 Должен быть установлен Python c PATH (при установке отметьте Add Python to PATH)
 ## 1. Backend (без изменений)
 
@@ -30,17 +27,14 @@ uvicorn app.main:app --host 127.0.0.1 --port 8000
 
 ## 2. Frontend (то, что было дополнено)
 
-Распакуйте `negotiator-ai-frontend.zip` — это готовый Vite + React проект
-(на репозиторий он не завязан, можно положить рядом с backend или
-в `artifacts/negotiator-ai`, заменив прежнее содержимое).
-
 ```bash
 cd ваш путь/negotiator-ai
 (если не установлен Node.js)
 python install_nodejs.py
 n.bat install
 n.bat approve-scripts --allow-scripts-pending
-n.bat run dev
+r + enter - перезапустит сервер
+n.bat run dev (необязательно, если сервер запустился)
 
 (если установлен Node.js)
 npm install
